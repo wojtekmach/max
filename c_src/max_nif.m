@@ -48,25 +48,26 @@
     if (!enif_whereis_pid(NULL, name, &serverPid)) {
         fprintf(stderr, "enif_whereis_pid failed\n");
     }
+    [self send:enif_make_atom(self.env, "applicationWillFinishLaunching")];
 }
 
 - (void)applicationDidFinishLaunching:(NSNotification *)notification {
-    ERL_NIF_TERM msg = enif_make_atom(self.env, "applicationDidFinishLaunching");
-    if (!enif_send(NULL, &serverPid, NULL, msg)) {
-        NSLog(@"enif_send failed");
-    }
+    [self send:enif_make_atom(self.env, "applicationDidFinishLaunching")];
     [NSApp activateIgnoringOtherApps:YES];
 }
 
 - (void)applicationWillTerminate:(NSNotification *)notification {
-    ERL_NIF_TERM msg = enif_make_atom(self.env, "applicationWillTerminate");
-    if (!enif_send(NULL, &serverPid, NULL, msg)) {
-        NSLog(@"enif_send failed");
-    }
+    [self send:enif_make_atom(self.env, "applicationWillTerminate")];
 }
 
 - (BOOL)applicationShouldTerminateAfterLastWindowClosed:(NSApplication *)sender {
     return YES;
+}
+
+- (void)send:(ERL_NIF_TERM)msg {
+    if (!enif_send(NULL, &serverPid, NULL, msg)) {
+        NSLog(@"enif_send failed");
+    }
 }
 
 @end
